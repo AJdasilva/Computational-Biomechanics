@@ -52,12 +52,12 @@ def readData(filename):
 
 
 
-t, FDC, FD, FFC, FF, FC, CO, CC = readData("Multiscaledataset-latest/Tissue Mechanical Testing/acl/acl_stepstress.csv")
-t2, FDC2, FD2, FFC2, FF2, FC2, CO2, CC2 = readData("Multiscaledataset-latest/Tissue Mechanical Testing/acl/acl_preload.csv")
+t, FDC, FD, FFC, FF, FC, CO, CC = readData("Full-Data-Set/Tissue Mechanical Testing/acl/acl_stepstress.csv")
+t2, FDC2, FD2, FFC2, FF2, FC2, CO2, CC2 = readData("Full-Data-Set/Tissue Mechanical Testing/acl/acl_preload.csv")
 
 plt.figure()
-plt.plot(t, FD, marker='.', markersize='1', ls='none', color='k', label="stepstress")
-plt.plot(t2, FD2, marker='.', markersize='1', ls='none', color='r', label="preload")
+plt.plot(t, FD, marker='.', markersize='1', color='k', label="stepstress")
+plt.plot(t2, FD2, marker='.', markersize='1', color='r', label="preload")
 plt.legend()
 plt.xlabel("Time (sec)")
 plt.ylabel("Frame Displacement (mm)")
@@ -66,8 +66,8 @@ plt.show()
 #plt.close()
 
 plt.figure()
-plt.plot(FD, FF, marker='.', markersize='1', ls='none', color='k', label="stepstress")
-plt.plot(FD2, FF2, marker='.', markersize='1', ls='none', color='r', label="preload")
+plt.plot(FD, FF, marker='.', markersize='1', color='k', label="stepstress")
+plt.plot(FD2, FF2, marker='.', markersize='1', color='r', label="preload")
 plt.legend()
 plt.xlabel("Frame Displacement (mm)")
 plt.ylabel("Frame Force (N)")
@@ -75,7 +75,7 @@ plt.show()
 #plt.close()
 
 plt.figure()
-plt.plot(FDC, FD, marker='.', markersize='1', ls='none', color='k', label="stepstress")
+plt.plot(FDC, FD, marker='.', markersize='1', color='k', label="stepstress")
 plt.legend()
 plt.xlabel("Frame Displacement Command (mm)")
 plt.ylabel("Frame Displacement (mm)")
