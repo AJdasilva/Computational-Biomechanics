@@ -40,14 +40,14 @@ def readData(filename):
                     CO.append(row[6])
                     CC.append(row[7])
             line_num = line_num + 1
-    t = np.array(map(float, t))
-    FDC = np.array(map(float, FDC))
-    FD = np.array(map(float, FD))
-    FFC = np.array(map(float, FFC))
-    FF = np.array(map(float, FF))
-    FC = np.array(map(float, FC))
-    CO = np.array(map(float, CO))
-    CC = np.array(map(float, CC))
+    t = np.array(t).astype(float)
+    FDC = np.array(FDC).astype(float)
+    FD = np.array(FD).astype(float)
+    FFC = np.array(FFC).astype(float)
+    FF = np.array(FF).astype(float)
+    FC = np.array(FC).astype(float)
+    CO = np.array(CO).astype(float)
+    CC = np.array(CC).astype(float)
     return t, FDC, FD, FFC, FF, FC, CO, CC
 
 
