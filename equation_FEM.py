@@ -1,15 +1,17 @@
 """
     Solves
     (weak form of eqn 12, Chandran and Barocas)
-            \[    \nabla S_{ij} - (1/a) (s_{ij}-S_{ij})u_{k,I} = 0    \]
+    \[    \nabla S_{ij} - (1/a) (s_{ij}-S_{ij})u_{k,I} = 0    \]
     *TODO* check this Equation
-
+    
     Look at examples on
     http://sfepy.org/doc-devel/examples.html
-
+    
     EDITED: 2/5/18 (dean k) adapted this example:
-        http://sfepy.org/doc-devel/examples/large_deformation/active_fibres.html
-    to our problem. Still have many quesitons. 
+    http://sfepy.org/doc-devel/examples/large_deformation/active_fibres.html
+    to our problem. Still have many quesitons.
+    
+    EDITED: 2/16/18 (rachel) fixed syntax errors so that code will run
     """
 
 import numpy as np
@@ -17,7 +19,7 @@ from sfepy import data_dir
 
 filename_mesh = data_dir + '/meshes/2d/' #TODO determine which mesh
 
-vf _matrix = 1.0
+vf_matrix = 1.0
 # If we add fibers
 #vf_fibres1 = some number
 #vf_fibres2 = some number2
@@ -31,16 +33,16 @@ options = {
 }
 
 fields = {
-    'displacement':(nm.float64, 2, 'Omega',1),  # The 2 refers to dof.
+    'displacement':(np.float64, 2, 'Omega',1),  # The 2 refers to dof.
 }
 
 materials = {
     'solid' : ({
-        'K'  : vf_matrix * 1e3, # bulk modulus
-        'mu' : vf_matrix * 20e0, # shear modulus of neoHookean term
-    },),
-    #'f1' : 'get_pars_fibres1',
-    #'f2' : 'get_pars_fibres2',
+               'K'  : vf_matrix * 1e3, # bulk modulus
+               'mu' : vf_matrix * 20e0, # shear modulus of neoHookean term
+               },),
+#'f1' : 'get_pars_fibres1',
+#'f2' : 'get_pars_fibres2',
 }
 
 variables = {
@@ -70,9 +72,9 @@ integral_1 = {
 equations = {
     'balance'
         : """dw_tl_he_neohook.i.Omega( solid.mu, v, u )
-           + dw_tl_bulk_penalty.i.Omega( solid.K, v, u )
-
-           = 0""",
+            + dw_tl_bulk_penalty.i.Omega( solid.K, v, u )
+            
+            = 0""",
 }
 
 # Where the calc is going to be done.
@@ -80,39 +82,33 @@ equations = {
 #   i.e., See Chandran, Barocas Eqn 12
 def stress_strain(out, problem, state, extend=False):
     from sfepy.base.base import Struct, debug
-
+    
     ev = problem.evaluate
     # call the equation term 'dw_tl_he_nehook', the integral 'i', the region for
     #   for integration 'Omega', then call the materials, the test fcn and unknown fcn
     strain = ev('dw_tl_he_neohook.i.Omega( solid.mu, v, u )',
                 mode='el_avg', term_mode='strain')
-    out['green_strain'] = Struct(name='output_data',
-                                 mode='cell', data=strain, dofs=None)
-
-    stress = ev('dw_tl_he_neohook.i.Omega( solid.mu, v, u )',
-                mode='el_avg', term_mode='stress')
-    out['neohook_stress'] = Struct(name='output_data',
-                                   mode='cell', data=stress, dofs=None )
-
-    stress = ev('dw_tl_bulk_penalty.i.Omega( solid.K, v, u )',
-                mode='el_avg', term_mode= 'stress')
-    out['bulk_stress'] = Struct(name='output_data',
-                                mode='cell', data=stress, dofs=None)
+    out['green_strain'] = Struct(name='output_data', mode='cell', data=strain, dofs=None)
+                
+    stress = ev('dw_tl_he_neohook.i.Omega( solid.mu, v, u )', mode='el_avg', term_mode='stress')
+    out['neohook_stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None )
+                
+    stress = ev('dw_tl_bulk_penalty.i.Omega( solid.K, v, u )', mode='el_avg', term_mode= 'stress')
+    out['bulk_stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None)
     # List of the 3 terms
     return out
-
-    solver_0 = {
-    'name' : 'ls',
-    'kind' : 'ls.scipy_direct',
+                
+solver_0 = {'name' : 'ls',
+            'kind' : 'ls.scipy_direct',
 }
 
 # Workhorses.
 solver_1 = {
     'name' : 'newton',
     'kind' : 'nls.newton',
-
+    
     'i_max'      : 7,  # iterations? See page 140 in 2D_collagen_gel
-                        #   (may set to 1 and bounce between this solver and the microscale problem)
+    #   (may set to 1 and bounce between this solver and the microscale problem)
     'eps_a'      : 1e-10,
     'eps_r'      : 1.0,
     'macheps'    : 1e-16,
@@ -128,15 +124,17 @@ solver_1 = {
 solver_2 = {
     'name' : 'ts',
     'kind' : 'ts.simple',
-
+    
     't0'    : 0,
     't1'    : 1,
     'dt'    : None,
     'n_step' : 21, # has precedence over dt!
 }
 
-def  main():
-    #TODO Finish main (/ start main)
+def main():
+#TODO Finish main (/ start main)
+    print "Finish main (/start main)"
+    return
 
-if __name__  = "__main__":
+if __name__  == "__main__":
     main()
