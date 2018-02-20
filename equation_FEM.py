@@ -1,17 +1,21 @@
 """
     Solves
     (weak form of eqn 12, Chandran and Barocas)
-    \[    \nabla S_{ij} - (1/a) (s_{ij}-S_{ij})u_{k,I} = 0    \]
+    \[    \ nabla S_{ij} - (1/a) (s_{ij}-S_{ij})u_{k,I} = 0    \]
     *TODO* check this Equation
-    
+
     Look at examples on
     http://sfepy.org/doc-devel/examples.html
-    
+    Table of terms for PDEs
+    http://sfepy.org/doc-devel/term_table.html?highlight=dw_surface_ltr
+
     EDITED: 2/5/18 (dean k) adapted this example:
     http://sfepy.org/doc-devel/examples/large_deformation/active_fibres.html
     to our problem. Still have many quesitons.
-    
+
     EDITED: 2/16/18 (rachel) fixed syntax errors so that code will run
+
+    EDITED: 2/20/18 (dean) edited equation definition
     """
 
 import numpy as np
@@ -68,13 +72,23 @@ integral_1 = {
 }
 
 #balance equations
-# TODO check check check these! Still not sure what this means...
+# TODO check check check these!
+# CURRENTLY, set s_{ij} = 0 for all i,j representing the fact that the microscale
+# momentum is not being considered. The equation  then is
+#\[ \ nabla S = (1/a) int_surf ( - nabla S ) \cdot n dI
+# Set Volume, a =  1 for now as well.
+
 equations = {
     'balance'
-        : """dw_tl_he_neohook.i.Omega( solid.mu, v, u )
-            + dw_tl_bulk_penalty.i.Omega( solid.K, v, u )
-            
-            = 0""",
+        : """ ev_surface_div.i.Left(v, u) + ev_surface_div.i.Right(v, u) + ev_surface_integrate.i.Left(solid.mu, v, u)
+                + ev_surface_integrate.i.Right(solid.mu, v, u)
+
+
+                = 0""",
+        # : """dw_tl_he_neohook.i.Omega( solid.mu, v, u )
+        #     + dw_tl_bulk_penalty.i.Omega( solid.K, v, u )
+        #
+        #     = 0""",
 }
 
 # Where the calc is going to be done.
@@ -82,22 +96,24 @@ equations = {
 #   i.e., See Chandran, Barocas Eqn 12
 def stress_strain(out, problem, state, extend=False):
     from sfepy.base.base import Struct, debug
-    
+
     ev = problem.evaluate
     # call the equation term 'dw_tl_he_nehook', the integral 'i', the region for
     #   for integration 'Omega', then call the materials, the test fcn and unknown fcn
-    strain = ev('dw_tl_he_neohook.i.Omega( solid.mu, v, u )',
+    #TODO Does this work - plugging in this sum of terms?
+    strain = ev('ev_surface_div.i.Left(v, u) + ev_surface_div.i.Right(v, u)+ ev_surface_integrate.i.Left(solid.mu, v, u) + ev_surface_integrate.i.Right(solid.mu, v, u)',
                 mode='el_avg', term_mode='strain')
     out['green_strain'] = Struct(name='output_data', mode='cell', data=strain, dofs=None)
-                
-    stress = ev('dw_tl_he_neohook.i.Omega( solid.mu, v, u )', mode='el_avg', term_mode='stress')
-    out['neohook_stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None )
-                
-    stress = ev('dw_tl_bulk_penalty.i.Omega( solid.K, v, u )', mode='el_avg', term_mode= 'stress')
-    out['bulk_stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None)
+
+     stress = ev('ev_surface_div.i.Left(v, u) + ev_surface_div.i.Right(v, u)+ ev_surface_integrate.i.Left(solid.mu, v, u) + ev_surface_integrate.i.Right(solid.mu, v, u)',
+     mode='el_avg', term_mode='stress')
+     out['stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None )
+
+    # stress = ev('dw_tl_bulk_penalty.i.Omega( solid.K, v, u )', mode='el_avg', term_mode= 'stress')
+    # out['bulk_stress'] = Struct(name='output_data',mode='cell', data=stress, dofs=None)
     # List of the 3 terms
     return out
-                
+
 solver_0 = {'name' : 'ls',
             'kind' : 'ls.scipy_direct',
 }
@@ -106,7 +122,7 @@ solver_0 = {'name' : 'ls',
 solver_1 = {
     'name' : 'newton',
     'kind' : 'nls.newton',
-    
+
     'i_max'      : 7,  # iterations? See page 140 in 2D_collagen_gel
     #   (may set to 1 and bounce between this solver and the microscale problem)
     'eps_a'      : 1e-10,
@@ -124,7 +140,7 @@ solver_1 = {
 solver_2 = {
     'name' : 'ts',
     'kind' : 'ts.simple',
-    
+
     't0'    : 0,
     't1'    : 1,
     'dt'    : None,
