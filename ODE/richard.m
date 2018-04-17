@@ -68,6 +68,25 @@ plot(x,y,'-o')
 
 
 
+%%%%%%NEW STUFF%%%%%%
+tspan= [min(Time) 3500];
+y0 = stress(1);
+func = @(t,y) (1/(aclwidth*stress(1)))*(y);
+[t,y] = ode45(func, tspan, y0);
+plot(t,y,'-o')
+
+tspan= [min(Time) 3500];
+x0 = strain(50);
+func2 = @(t1,x) (1/(aclwidth*strain(50)))*(x);
+[t1,x] = ode45(func2, tspan, x0);
+plot(t1,x,'-o')
+
+plot(x,y,'-o')
+
+
+
+
+
 
 % def model(y,t):
 %     dydt = (1/(aclwidth*FD))*(y)
